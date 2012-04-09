@@ -1,7 +1,7 @@
 """This holds the definitions and numbers of the cards defined in Command PK
 """
 
-AVERAGE_DECK = {
+CPK_AVERAGE_DECK = {
         'Artillery Move': 3,
         'Artillery Reload': 3,
         'Cavalry Move': 3,

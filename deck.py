@@ -2,7 +2,6 @@
 """
 
 import random
-from pk.deck_data import AVERAGE_DECK
 
 
 class EndOfDeckException(Exception):
@@ -11,7 +10,7 @@ class EndOfDeckException(Exception):
 
 class Deck(object):
 
-    def __init__(self, deck_dict=AVERAGE_DECK):
+    def __init__(self, deck_dict):
         self.cards = []
         self.iter = -1
         for c, n in deck_dict.iteritems():

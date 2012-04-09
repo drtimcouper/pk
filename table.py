@@ -1,3 +1,5 @@
+import os.path
+
 CELL_WIDTH = 25
 LINE_WIDTH = (CELL_WIDTH*4 + 5)
 DASH_LINE = '-'*LINE_WIDTH + '\n'
@@ -58,6 +60,7 @@ class Table(dict):
 
                 first = False
 
+        print 'File "%s" created' % os.path.abspath(fn)
 
 def line(word, n):
     return '|' + fit(word, n)

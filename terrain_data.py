@@ -124,7 +124,7 @@ HEAVY = {BASELINE: {
         'Major Morale': 'Heavy Water Feature',
         'Maneuver': 'Road & Impassable',
         'Melee': 'Heavy Hill',
-        'Tactical Advantage': 'Heavy Water Feature & Village'
+        'Tactical Advantage': 'Village & Heavy Water Feature'
          },
          CENTER: {
         'Artillery Move': 'Light Wood',
