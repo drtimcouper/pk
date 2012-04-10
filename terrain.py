@@ -1,10 +1,12 @@
 
 import random
+import os.path
 from ConfigParser import ConfigParser
 
 from pk.deck import Deck
 from pk.terrain_data import LIGHT, MEDIUM, HEAVY, BASELINE, FLANK, CENTER
 from pk.deck_data import CPK_AVERAGE_DECK
+from pk.force import Force
 
 FORCE_DEFAULTS = ['Blue', 'Red']
 
@@ -99,7 +101,7 @@ class Table(dict):
         return nice
 
     def save(self, fn):
-        """writes the pictoral representation of thte terrain objects held in the
+        """writes the pictoral representation of the terrain objects held in the
         dictionary as a text form"""
 
         with open(fn, 'w') as f:
@@ -145,9 +147,6 @@ def fit(word, n):
 def main(config_file):
     forces, terrain = load_config(config_file)
 
-    while len(forces) < 2:
-        forces[FORCE_DEFAULTS.pop()] = {}
-
     table = build_terrain(forces, terrain)
     if config_file is None:
        config_file = 'no_config'
@@ -155,8 +154,8 @@ def main(config_file):
     output_file = config_file + '.txt'
     table.save(output_file)
 
-def load_config(config_file):
 
+def load_config(config_file):
     forces = {}
     terrain = {}
 
@@ -172,6 +171,9 @@ def load_config(config_file):
                 for o in cp.options(s):
                     forces[s][o] = cp.get(s,o)
 
+    while len(forces) < 2:
+        forces[FORCE_DEFAULTS.pop()] = {}
+
     return forces, terrain
 
 
@@ -185,12 +187,12 @@ def build_terrain(forces, terrain):
         else:
             raise ValueError('Invalid terrain type specified: "%s"' % ttype)
 
-    for force, data in forces.iteritems():
+    for force, data_dict in forces.iteritems():
         table[force] = Terrain(deck, weights)
     return table
 
 
-if __name__ == '__main__':
+if __name__ == '__main__':  # pragma: no cover
     import sys
     import os
 

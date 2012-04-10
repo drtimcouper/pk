@@ -1,0 +1,2 @@
+class Force(dict):
+   pass
