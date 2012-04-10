@@ -6,18 +6,25 @@ from pk.deck import Deck
 from pk.terrain_data import LIGHT, MEDIUM, HEAVY, BASELINE, FLANK, CENTER
 from pk.deck_data import CPK_AVERAGE_DECK
 
-WEIGHT_KEYS = ('light', 'medium', 'heavy')
+FORCE_DEFAULTS = ['Blue', 'Red']
 
 class Terrain(object):
     def __init__(self, deck, weights=None):
         self.deck = deck
-        if weights is None:
-                self.weights = {'light': 1, 'medium': 1, 'heavy': 1}
-        else:
-                self.weights = weights
-        total_weights = sum((float(v) for v in self.weights.itervalues()))
-        self.weights = dict((k, float(v)/total_weights) for k,v in self.weights.iteritems())
+        self.weights = self.calc_weights(weights)
         self.build()
+
+    def calc_weights(self, weights):
+
+        if weights is None:
+            return {'light': 1./3, 'medium': 1./3, 'heavy': 1./3}
+
+        total_weights = sum((float(v) for v in weights.itervalues()))
+
+        if total_weights == 0:
+            return {'light': 1./3, 'medium': 1./3, 'heavy': 1./3}
+        else:
+            return dict((k, float(v)/total_weights) for k,v in weights.iteritems())
 
     def build(self):
         self.cgrid = {}
@@ -135,31 +142,50 @@ def fit(word, n):
         return word[:n]
 
 
-
-
 def main(config_file):
-    forces = load_config(config_file)
-    table = build_terrain(forces)
-    table.save(config_file+'.txt')
+    forces, terrain = load_config(config_file)
 
+    while len(forces) < 2:
+        forces[FORCE_DEFAULTS.pop()] = {}
+
+    table = build_terrain(forces, terrain)
+    if config_file is None:
+       config_file = 'no_config'
+
+    output_file = config_file + '.txt'
+    table.save(output_file)
 
 def load_config(config_file):
-    cp = ConfigParser()
-    cp.read(config_file)
+
     forces = {}
-    for s in cp.sections():
-        forces[s] = {}
-        for o in cp.options(s):
-            forces[s][o] = cp.get(s,o)
+    terrain = {}
 
-    return forces
+    if config_file is not None:
+        cp = ConfigParser()
+        cp.read(config_file)
+        for s in cp.sections():
+            if s == 'terrain':
+                for o in cp.options(s):
+                    terrain[o] = cp.get(s,o)
+            else:
+                forces[s] = {}
+                for o in cp.options(s):
+                    forces[s][o] = cp.get(s,o)
+
+    return forces, terrain
 
 
-def build_terrain(forces):
+def build_terrain(forces, terrain):
     deck = Deck(CPK_AVERAGE_DECK)
     table = Table()
+    weights = {'light': 0, 'medium': 0, 'heavy': 0}
+    for ttype, value in terrain.iteritems():
+        if ttype in weights:
+            weights.update({ttype: value})
+        else:
+            raise ValueError('Invalid terrain type specified: "%s"' % ttype)
+
     for force, data in forces.iteritems():
-        weights = dict(((key, data[key]) for key in data if key in WEIGHT_KEYS) )
         table[force] = Terrain(deck, weights)
     return table
 
@@ -170,13 +196,13 @@ if __name__ == '__main__':
 
     args = sys.argv[1:]
     if len(args) == 0:
-        print 'A configuration file must be specified'
-        sys.exit(1)
+        config_file = None
 
-    config_file = os.path.abspath(args[0])
-    if not os.path.isfile(config_file):
-        print 'Configuration file "%s" not found' % config_file
-        sys.exit(1)
+    else:
+        config_file = os.path.abspath(args[0])
+        if not os.path.isfile(config_file):
+            print 'Configuration file "%s" not found' % config_file
+            sys.exit(1)
 
     random.seed()
     main(config_file)
