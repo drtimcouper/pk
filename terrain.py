@@ -6,9 +6,6 @@ from pk.deck import Deck
 from pk.terrain_data import LIGHT, MEDIUM, HEAVY, BASELINE, FLANK, CENTER
 from pk.deck_data import CPK_AVERAGE_DECK
 
-
-random.seed()
-
 WEIGHT_KEYS = ('light', 'medium', 'heavy')
 
 class Terrain(object):
@@ -167,7 +164,6 @@ def build_terrain(forces):
     return table
 
 
-
 if __name__ == '__main__':
     import sys
     import os
@@ -182,4 +178,5 @@ if __name__ == '__main__':
         print 'Configuration file "%s" not found' % config_file
         sys.exit(1)
 
+    random.seed()
     main(config_file)
